@@ -1,8 +1,6 @@
 import React, { Component, Suspense } from 'react';
 import { Text, View, ScrollView, FlatList, StyleSheet, Modal, Button, Alert, PanResponder } from 'react-native';
 import { Card, Icon, Rating, Input } from 'react-native-elements';
-import { DISHES } from '../shared/dishes';
-import { COMMENTS } from '../shared/comments';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
 import { postFavorite, postComment } from '../redux/ActionCreators';
@@ -23,9 +21,7 @@ const mapDispatchToProps = dispatch => ({
 
 function RenderDish(props) {
 
-    const dish = props.dish;
-
-    handleViewRef = ref => this.view = ref;
+    const dish = props.dish;    
 
     const recognizeDrag = ({ moveX, moveY, dx, dy }) => {
         if ( dx < -200 )
@@ -33,13 +29,24 @@ function RenderDish(props) {
         else
             return false;
     }
+
+    const recognizeComment = ({ moveX, moveY, dx, dy }) => {
+        if ( dx > 200 )
+            return true;
+        else
+            return false;
+    }
+
+    var viewRef;
+
+    const handleViewRef = ref => viewRef = ref;
     
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: (e, gestureState) => {
             return true;
         },
         onPanResponderGrant: () => {
-            this.view.rubberBand(1000).then(endState => console.log(endState.finished ? 'finished' : 'cancelled'));
+            viewRef.rubberBand(1000).then(endState => console.log(endState.finished ? 'finished' : 'cancelled'));
         },
         onPanResponderEnd: (e, gestureState) => {
             console.log("pan responder end", gestureState);
@@ -54,6 +61,10 @@ function RenderDish(props) {
                     { cancelable: false }
                 );
 
+            if (recognizeComment(gestureState)) {
+                props.toggleModal()
+            }
+
             return true;
         }
     })
@@ -61,7 +72,7 @@ function RenderDish(props) {
         if (dish != null) {
             return(
                 <Animatable.View animation="fadeInDown" duration={2000} delay={1000}
-                ref={this.handleViewRef}
+                ref={handleViewRef}
                 {...panResponder.panHandlers}>
                 <Card
                 featuredTitle={dish.name}
