@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
-import { Text, View, StyleSheet,ScrollView, Picker, Switch, Button, Modal, TouchableOpacity, Alert} from 'react-native';
+import { Text, View, StyleSheet,ScrollView, Picker, Switch, Button, Modal, Platform, TouchableOpacity, Alert} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import Moment from 'moment';
 import { Icon } from 'react-native-elements';
 import * as Animatable from 'react-native-animatable';
+//import { Notifications } from 'expo';
+import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
+import * as Calendar from 'expo-calendar';
+import { baseUrl } from '../shared/baseUrl';
 
 class Reservation extends Component {
 
@@ -34,6 +39,88 @@ class Reservation extends Component {
             showModal: false
         });
     }
+
+    async obtainNotificationPermission(){
+        let permission = await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS);
+        if(permission.status !== 'granted') {
+            permission = await Permissions.askAsync(Permissions.USER_FACING_NOTIFICATIONS);
+            if (permission.status !== 'granted') {
+                Alert.alert('Permission not granted to show notifications');
+            }
+        }
+        
+        return permission;
+    }
+
+    async obtainCalendarPermission(){
+        let permission = await Permissions.getAsync(Permissions.CALENDAR);
+        if(permission.status !== 'granted') {
+            permission = await Permissions.askAsync(Permissions.CALENDAR);
+            if (permission.status !== 'granted') {
+                Alert.alert('Permission not granted for calender');
+            }
+        }
+        
+        return permission;
+    }
+
+    async presentLocalNotification(date) {
+        await this.obtainNotificationPermission();
+        Notifications.presentNotificationAsync({
+            title: 'Your Reservation',
+            body: 'Reservation for '+ date + ' requested',
+            ios: {
+                sound: true
+            },
+            android: {
+                sound: true,
+                vibrate: true,
+                color: '#512DA8'
+            }
+        });
+    }
+
+    
+
+    async addReservationToCalendar(date) {
+        const tempDate = Date.parse(date)
+        const startDate = new Date(tempDate)
+        const endDate = new Date(tempDate +  2 * 60 * 60 * 1000 )
+
+        await this.obtainCalendarPermission();
+        const details = {
+            title: 'Con Fusion Table Reservation',
+            startDate: startDate,
+            endDate: endDate,
+            location: "121, Clear Water Bay Road, Clear Water Bay, Kowloon, HONG KONG",
+            timeZone: "GMT+5"
+          };       
+        
+
+        const defaultCalendarSource =
+          Platform.OS === 'ios'
+            ? await getDefaultCalendarSource()
+            : { isLocalAccount: true, name: 'Expo Calendar' };
+
+        const calendarId = await Calendar.createCalendarAsync(
+            {
+                title: 'Expo Calendar',
+                color: 'blue',
+                entityType: Calendar.EntityTypes.EVENT,
+                sourceId: defaultCalendarSource.id,
+                source: defaultCalendarSource,
+                name: 'internalCalendarName',
+                ownerAccount: 'personal',
+                accessLevel: Calendar.CalendarAccessLevel.OWNER,
+              }
+        );
+        console.log(`Your new calendar ID is: ${calendarId}`);
+
+        await Calendar.createEventAsync(calendarId,details);
+                   
+    }
+
+     
     
     render() {
         return(
@@ -115,7 +202,11 @@ class Reservation extends Component {
                                 },
                                 {
                                     text: 'OK',
-                                    onPress: () => this.resetForm()
+                                    onPress: () => {
+                                        this.presentLocalNotification(this.state.date);
+                                        this.addReservationToCalendar(this.state.date);
+                                        this.resetForm();                                        
+                                    }
                                 }
                             ],
                             { cancelable: false }

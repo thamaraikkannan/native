@@ -1,5 +1,5 @@
 import React, { Component, Suspense } from 'react';
-import { Text, View, ScrollView, FlatList, StyleSheet, Modal, Button, Alert, PanResponder } from 'react-native';
+import { Text, View, ScrollView, FlatList, StyleSheet, Modal, Button, Alert, PanResponder, Share } from 'react-native';
 import { Card, Icon, Rating, Input } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
@@ -49,7 +49,7 @@ function RenderDish(props) {
             viewRef.rubberBand(1000).then(endState => console.log(endState.finished ? 'finished' : 'cancelled'));
         },
         onPanResponderEnd: (e, gestureState) => {
-            console.log("pan responder end", gestureState);
+            //console.log("pan responder end", gestureState);
             if (recognizeDrag(gestureState))
                 Alert.alert(
                     'Add Favorite',
@@ -68,6 +68,16 @@ function RenderDish(props) {
             return true;
         }
     })
+
+    const shareDish = (title, message, url) => {
+        Share.share({
+            title: title,
+            message: title + ': ' + message + ' ' + url,
+            url: url
+        },{
+            dialogTitle: 'Share ' + title
+        })
+    }
 
         if (dish != null) {
             return(
@@ -97,6 +107,14 @@ function RenderDish(props) {
                             color='#512DA7'
                             onPress={() => props.toggleModal()}
                         />
+                        <Icon
+                            raised
+                            reverse
+                            name='share'
+                            type='font-awesome'
+                            color='#51D2A8'
+                            style={styles.cardItem}
+                            onPress={() => shareDish(dish.name, dish.description, baseUrl + dish.image)} />
                     </View>
                 </Card>
                 </Animatable.View>
