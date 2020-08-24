@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { View, Button, StyleSheet,ScrollView, Image } from 'react-native';
-import { Card, Icon, Input, CheckBox } from 'react-native-elements';
+import { View, StyleSheet,ScrollView, Image } from 'react-native';
+import { Card, Icon, Input, CheckBox, Button } from 'react-native-elements';
 //import { SecureStore } from 'expo';
 import * as Expo from 'expo';
 import * as SecureStore from 'expo-secure-store';
@@ -87,7 +87,7 @@ class LoginTab extends Component {
                 <View style={styles.formButton}>
                 <Button
                         onPress={() => this.handleLogin()}
-                        title="Login"
+                        title=" Login"
                         icon={
                             <Icon
                                 name='sign-in'
@@ -104,7 +104,7 @@ class LoginTab extends Component {
                 <View style={styles.formButton}>
                     <Button
                         onPress={() => this.props.navigation.navigate('Register')}
-                        title="Register"
+                        title=" Register"
                         clear
                         icon={
                             <Icon
@@ -220,7 +220,7 @@ class RegisterTab extends Component {
                         />
                     <Button
                         title="Gallery"
-                        onPress={this.getImageFromGallery}
+                        onPress={ this.getImageFromGallery }
                         />
                 </View>
                 <Input
@@ -295,7 +295,8 @@ const styles = StyleSheet.create({
     imageContainer: {
         flex: 1,
         flexDirection: 'row',
-        margin: 20
+        margin: 20,
+        justifyContent: 'space-around'
     },
     image: {
       margin: 10,

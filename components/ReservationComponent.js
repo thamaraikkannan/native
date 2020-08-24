@@ -88,12 +88,13 @@ class Reservation extends Component {
         const endDate = new Date(tempDate +  2 * 60 * 60 * 1000 )
 
         await this.obtainCalendarPermission();
+
         const details = {
             title: 'Con Fusion Table Reservation',
             startDate: startDate,
             endDate: endDate,
             location: "121, Clear Water Bay Road, Clear Water Bay, Kowloon, HONG KONG",
-            timeZone: "GMT+5"
+            timeZone: "Asia/Hong_Kong"
           };       
         
 
@@ -114,7 +115,7 @@ class Reservation extends Component {
                 accessLevel: Calendar.CalendarAccessLevel.OWNER,
               }
         );
-        console.log(`Your new calendar ID is: ${calendarId}`);
+        //console.log(`Your new calendar ID is: ${calendarId}`);
 
         await Calendar.createEventAsync(calendarId,details);
                    
